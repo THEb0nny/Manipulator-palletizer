@@ -14,6 +14,7 @@ ServoSmooth servos[SERVO_AMOUNT];
 TimerMs tmr(1000, 0, 0);
 
 int servosPins[SERVO_AMOUNT] = {SERVO1_PIN, SERVO2_PIN, SERVO3_PIN, SERVO4_PIN};
+bool servosDir[SERVO_AMOUNT] = {false, false, false, false};
 int servosPos[SERVO_AMOUNT] = {0, 0, 0, 0};
 
 int robotState = 0;
@@ -26,6 +27,8 @@ void setup() {
     servos[i].smoothStart();
     servos[i].setSpeed(90);
     servos[i].setAccel(0.2);
+    servos[i].setMaxAngle(360);
+    servos[i].setDirection(servosDir[i]);
     servos[i].setAutoDetach(true);
   }
   servos[0].setTarget(map(180, 0, 360, 500, 2500));
