@@ -46,14 +46,14 @@ void setup() {
 }
 
 float* Manipulator_IK(float x, float y, float z) {
-  float a1 = atan(x / y);
+  float a1 = atan(y / x);
   //Serial.println("a1_rad: " + String(a1));
   //Serial.println("a1_deg: " + String(degrees(a1)));
   float a2 = 0;
   float a3 = 0;
-  float *ik = new float[SERVO_AMOUNT - 1]{0};
-  ik[0] = 90 + degrees(a1), ik[1] = degrees(a2), ik[2] = degrees(a3);
-  Serial.println("ik[0]: " + String(ik[0]));
+  float *ik = new float[3]{0};
+  ik[0] = degrees(a1), ik[1] = degrees(a2), ik[2] = degrees(a3);
+  //Serial.println("ik[0]: " + String(ik[0]));
   return ik;
 }
 
@@ -73,7 +73,7 @@ void loop() {
   }
 
   if (servos[0].tick()) { // Сервопривод 0 занял позицию?
-    //float* ikServosDeg = new float[SERVO_AMOUNT]{0};
+    //float* ikServosDeg = new float[3]{0};
     if (robotState == 0) {
       servos[0].setTargetDeg(0);
       robotState = 1;
@@ -81,9 +81,11 @@ void loop() {
       servos[0].setTargetDeg(round(54.1));
       robotState = 2;
     } else if (robotState == 2) {
-      //ikServosDeg = Manipulator_IK(30, 50, 0);
-      //servos[0].setTargetDeg(round(ikServosDeg[0]));
-      servos[0].setTargetDeg(180);
+      float* ikServosDeg = new float[3]{0};
+      ikServosDeg = Manipulator_IK(0, 15, 0);
+      servos[0].setTargetDeg(round(ikServosDeg[0]));
+      delete[] ikServosDeg; // Удалить память под массив из функции Manipulator_IK
+      //servos[0].setTargetDeg(180);
       robotState = 3;
     } else if (robotState == 3) {
       servos[0].setTargetDeg(round(305.91));
@@ -92,7 +94,6 @@ void loop() {
       servos[0].setTargetDeg(round(360));
       robotState = 0;
     }
-
     //delete[] ikServosDeg; // Удалить память под массив из функции Manipulator_IK
   }
 
@@ -126,22 +127,4 @@ void loop() {
     delete[] ikServosDeg; // Удалить память под массив из функции Manipulator_IK
   }
   */
-}
-
-void Turn1(int x, int y) {
-  int angle;
-  int tan0 = y / x;
-  int tan1;
-  int d;
-  int k = 2;
-  if (x >= 0) {
-    tan0 = tan;
-    d = 0;
-  } else {
-    tan0 = abs(tan1);
-    d = -180;
-  }
-  angle = (180 - atan(tan1) * 180 / M_PI) * k + d;
-  servos[0].setTarget(map(angle, 0, 360, 500, 2500));
-  //srv1.writeMicroseconds(map(angle, 0, 360, 500, 2500));
 }
