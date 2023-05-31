@@ -2,29 +2,29 @@
 #include <TimerMs.h>
 #include <math.h>
 
-#define SERVO_AMOUNT 4
+#define SERVO_AMOUNT 4 // Всего сервоприводов
 
-#define SERVO1_PIN 10
-#define SERVO2_PIN 9
-#define SERVO3_PIN 8
-#define SERVO4_PIN 7
+#define SERVO1_PIN 10 // Пин сервопривода 1 в основании
+#define SERVO2_PIN 9 // Пин сервопривода 2
+#define SERVO3_PIN 8 // Пин сервопривода 3
+#define SERVO4_PIN 7 // Пин сервопривода 4
 
-#define SERVO_MIN_PULSE 500
-#define SERVO_MAX_PULSE 2500
-#define SERVO_START_POS 90
+#define SERVO_MIN_PULSE 500 // Минимальное значение имульса управления сервоприводами
+#define SERVO_MAX_PULSE 2500 // Максимальное значение импульса управления сервоприводами
+
+#define SERVO_RANGE_POS_PERFORMED 2 // Значение в каком диапазоне подтверждается занятие позиции сервоприводом
 
 ServoSmooth servos[SERVO_AMOUNT](360); // Создаём объекты серв с указанием, что максимальный угол 360
 
-TimerMs tmr(1000, 0, 0);
-TimerMs tmrPrint(300, 0, 0);
+TimerMs tmr(1000, 0, 0); // Вспомогательный таймер
+TimerMs tmrPrint(300, 0, 0); // Таймер для печати инфы в интервале
 
-int servosPins[SERVO_AMOUNT] = {SERVO1_PIN, SERVO2_PIN, SERVO3_PIN, SERVO4_PIN};
+int servosPins[SERVO_AMOUNT] = {SERVO1_PIN, SERVO2_PIN, SERVO3_PIN, SERVO4_PIN}; // Массив значений пинов подключения сервоприводов
 int servosStartupPos[SERVO_AMOUNT] = {180, 180, 180, 180}; // Позиция серв при старте перед тем
-bool servosDir[SERVO_AMOUNT] = {true, false, false, false};
+bool servosDir[SERVO_AMOUNT] = {true, false, false, false}; // Массив значений о инверсии сервопривода
 bool servosAutoDetach[SERVO_AMOUNT] = {true, true, true, true}; // Массив с значениями об автоотключении при достижении угла для сервоприводов
-int servosSpeed[SERVO_AMOUNT] = {90, 90, 90, 90};
-float servosAccel[SERVO_AMOUNT] = {0.3, 0.3, 0.3, 0.3};
-//int servosPos[SERVO_AMOUNT] = {0, 0, 0, 0};
+int servosSpeed[SERVO_AMOUNT] = {90, 90, 90, 90}; // Массив значений скоростей для сервоприводов
+float servosAccel[SERVO_AMOUNT] = {0.3, 0.3, 0.3, 0.3}; // Массив значений ускорения сервоприводов
 
 int robotState = 0; // Переменная для хранения состояния робота
 
@@ -63,16 +63,17 @@ void loop() {
     //servos[i].tickManual(); // Двигаем все сервы. Такой вариант эффективнее отдельных тиков
   }
   
-  if (tmrPrint.tick()) {
+  if (tmrPrint.tick() || servos[0].tick()) {
     String strOut = "";
-    strOut += String(servos[0].getCurrentDeg());
-    if (servos[0].tick()) strOut += "\t > performed\t\t";
-    else strOut += "\t not performed\t";
+    strOut += "targetDeg: " + String(servos[0].getTargetDeg()) + "\t";
+    strOut += "currentDeg: " + String(servos[0].getCurrentDeg());
+    if (servos[0].tick()) strOut += "\t performed\t\t";
+    else strOut += "\t not performed\t\t";
     strOut += "state: " + String(robotState);
     Serial.println(strOut);
   }
 
-  if (servos[0].tick()) { // Сервопривод 0 занял позицию?
+  if (servos[0].tick() && CheckServoPosPerformed(servos[0])) { // Сервопривод 0 занял позицию?
     if (robotState == 0) {
       servos[0].setTargetDeg(0);
       robotState = 1;
@@ -83,7 +84,6 @@ void loop() {
       float* ikServosDeg = Manipulator_IK(0, 15, 0); // Чтобы получать массив из функции нельзя отдельно создавать массив с выделением памяти, а потом записывать в него значение, т.к. будет утечка памяти!
       servos[0].setTargetDeg(round(ikServosDeg[0]));
       delete[] ikServosDeg; // Удалить память под массив из функции Manipulator_IK
-      //servos[0].setTargetDeg(180);
       robotState = 3;
     } else if (robotState == 3) {
       servos[0].setTargetDeg(round(305.91));
@@ -124,4 +124,12 @@ void loop() {
     delete[] ikServosDeg; // Удалить память под массив из функции Manipulator_IK
   }
   */
+}
+
+// Фукнкция, которая проверяет занял ли серво позицию, находится в диапазоне +-
+bool CheckServoPosPerformed(ServoSmooth servo) {
+  if ((servo.getTargetDeg() - SERVO_RANGE_POS_PERFORMED) <= servo.getCurrentDeg() && servo.getCurrentDeg() <= (servo.getTargetDeg() + SERVO_RANGE_POS_PERFORMED)) {
+    return true;
+  }
+  return false;
 }
