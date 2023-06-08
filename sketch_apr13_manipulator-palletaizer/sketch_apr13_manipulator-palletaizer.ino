@@ -48,12 +48,12 @@ void setup() {
 float* Manipulator_IK(float x, float y, float z) {
   float a1 = atan(y / x);
   //Serial.println("a1_rad: " + String(a1));
-  //Serial.println("a1_deg: " + String(degrees(a1)));
+  Serial.println("a1_deg: " + String(degrees(a1)));
   float a2 = 0;
   float a3 = 0;
   float *ik = new float[3]{0};
   ik[0] = 90 + degrees(a1), ik[1] = degrees(a2), ik[2] = degrees(a3);
-  //Serial.println("ik[0]: " + String(ik[0]));
+  Serial.println("ik[0]: " + String(ik[0]));
   return ik;
 }
 
@@ -78,15 +78,15 @@ void loop() {
       servos[0].setTargetDeg(0);
       robotState = 1;
     } else if (robotState == 1) {
-      servos[0].setTargetDeg(round(54.1));
+      servos[0].setTargetDeg(round(57.855));
       robotState = 2;
     } else if (robotState == 2) {
-      float* ikServosDeg = Manipulator_IK(0, 15, 0); // Чтобы получать массив из функции нельзя отдельно создавать массив с выделением памяти, а потом записывать в него значение, т.к. будет утечка памяти!
-      servos[0].setTargetDeg(round(ikServosDeg[0]));
+      float* ikServosDeg = Manipulator_IK(10, 15, 0); // Чтобы получать массив из функции нельзя отдельно создавать массив с выделением памяти, а потом записывать в него значение, т.к. будет утечка памяти!
+      servos[0].setTargetDeg(round(ikServosDeg[0] * 0.666));
       delete[] ikServosDeg; // Удалить память под массив из функции Manipulator_IK
       robotState = 3;
     } else if (robotState == 3) {
-      servos[0].setTargetDeg(round(305.91));
+      servos[0].setTargetDeg(round(302.145));
       robotState = 4;
     } else if (robotState == 4) {
       servos[0].setTargetDeg(round(360));
