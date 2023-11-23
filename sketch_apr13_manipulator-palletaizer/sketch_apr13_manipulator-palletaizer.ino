@@ -1,17 +1,17 @@
 // https://github.com/GyverLibs/ServoSmooth
-// https://github.com/GyverLibs/ServoSmooth
+// https://github.com/GyverLibs/GParser
 
 #include <ServoSmooth.h>
 #include <TimerMs.h>
 #include <GParser.h>
 #include <math.h>
 
-#define SERVO_AMOUNT 4 // Всего сервоприводов
+#define SERVO_AMOUNT 4 // Всего сервоприводов манипулятора включая пневматический захват
 
 #define SERVO1_PIN 10 // Пин сервопривода 1 в основании
 #define SERVO2_PIN 9 // Пин сервопривода 2
 #define SERVO3_PIN 8 // Пин сервопривода 3
-#define SERVO4_PIN 7 // Пин сервопривода 4 для пневматического захвата
+#define SERVO_CLAW_PIN 7 // Пин сервопривода 4 для пневматического захвата
 
 #define SERVO_MIN_PULSE 500 // Минимальное значение имульса управления сервоприводами
 #define SERVO_MAX_PULSE 2500 // Максимальное значение импульса управления сервоприводами
@@ -19,11 +19,12 @@
 #define SERVO_RANGE_POS_PERFORMED 2 // Значение в каком диапазоне подтверждается занятие позиции сервоприводом
 
 ServoSmooth servos[SERVO_AMOUNT](360); // Создаём объекты серв с указанием, что максимальный угол 360
+ServoSmooth claw_servo(360); // Создаём объект серво пневматического захвата
 
 TimerMs tmrPrint(500); // Таймер для печати инфы в интервале
 
-int servosPins[SERVO_AMOUNT] = {SERVO1_PIN, SERVO2_PIN, SERVO3_PIN, SERVO4_PIN}; // Массив значений пинов подключения сервоприводов
-int servosStartupPos[SERVO_AMOUNT] = {180, 180, 180, 180}; // Позиция серв при старте перед тем
+int servosPins[SERVO_AMOUNT] = {SERVO1_PIN, SERVO2_PIN, SERVO3_PIN, SERVO_CLAW_PIN}; // Массив значений пинов подключения сервоприводов
+int servosStartupPos[SERVO_AMOUNT] = {180, 180, 180, 180}; // Позиция серв при старте
 bool servosDir[SERVO_AMOUNT] = {true, false, false, false}; // Массив значений о инверсии сервопривода
 bool servosAutoDetach[SERVO_AMOUNT] = {true, true, true, true}; // Массив с значениями об автоотключении при достижении угла для сервоприводов
 int servosSpeed[SERVO_AMOUNT] = {90, 90, 90, 90}; // Массив значений скоростей для сервоприводов
