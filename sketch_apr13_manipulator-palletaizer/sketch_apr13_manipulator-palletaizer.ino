@@ -33,7 +33,7 @@ float servosAccel[SERVO_AMOUNT] = {0.3, 0.3, 0.3, 0.3}; // Массив знач
 int robotState = 0; // Переменная для хранения состояния робота
 
 float j1 = 0, j2 = 0, j3 = 0;
-float j1_old = 0, j2_old = 0, j3_old = 0;
+float j1_old = 180, j2_old = 180, j3_old = 180;
 
 void setup() {
   Serial.begin(115200);
@@ -41,11 +41,11 @@ void setup() {
   Serial.println("Setup manipulator");
   for (byte i = 0; i < SERVO_AMOUNT; i++) {
     servos[i].attach(servosPins[i], SERVO_MIN_PULSE, SERVO_MAX_PULSE, servosStartupPos[i]); // Подключаем сервопривод в указанном пине, с указанием максимальных и минимальных длин импульса, а также с указанием стартового положения
-    servos[i].smoothStart(); // Смягчает движение серво из неизвестной позиции к стартовой. БЛОКИРУЮЩАЯ НА 1 СЕК! НЕ работает?
     servos[i].setSpeed(servosSpeed[i]); // Установить скорость
     servos[i].setAccel(servosAccel[i]); // Установить ускорение
     servos[i].setDirection(servosDir[i]); // Установить направление вращения
     servos[i].setAutoDetach(servosAutoDetach[i]); // Автоотключение при достижении целевого угла (по умолчанию включено)
+    servos[i].smoothStart(); // Смягчает движение серво из неизвестной позиции к стартовой. БЛОКИРУЮЩАЯ НА 1 СЕК! НЕ работает?
   }
   Serial.println("Start work"); // Сообщение о старте
   tmrPrint.setPeriodMode(); // Установить в режиме периода таймер печати
